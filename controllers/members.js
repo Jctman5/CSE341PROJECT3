@@ -24,8 +24,8 @@ const createMember = async (req, res) => {
         email: req.body.email,
         membershipid: req.body.membershipid,
         phone: req.body.phone,
+        favoriteGenre: req.body.favoriteGenre,
         joinDate: req.body.joinDate,
-        favoriteGenre: req.body.favoriteGenre
     };
     const response = await mongodb.getDatabase().db().collection("members").insertOne(member);
     if (response.acknowledged){
