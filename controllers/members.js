@@ -44,7 +44,7 @@ const updateMember = async (req, res) => {
         membershipid: req.body.membershipid,
         phone: req.body.phone,
         favoriteGenre: req.body.favoriteGenre,
-        joinDate: req.body.joinDate
+        joinDate: req.body.joinDate,
     };
     const response = await mongodb.getDatabase().db().collection("members").replaceOne({_id: memberId}, member);
     console.log("UPDATE RESULT:", response);

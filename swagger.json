@@ -5,10 +5,11 @@
     "description": "Library Api",
     "version": "1.0.0"
   },
-  "host": "cse341project3-0kwe.onrender.com",
+  "host": "localhost:3000",
   "basePath": "/",
   "schemes": [
-    "https"
+    "https",
+    "http"
   ],
   "paths": {
     "/": {
@@ -137,10 +138,10 @@
                 "phone": {
                   "example": "any"
                 },
-                "joinDate": {
+                "favoriteGenre": {
                   "example": "any"
                 },
-                "favoriteGenre": {
+                "joinDate": {
                   "example": "any"
                 }
               }
