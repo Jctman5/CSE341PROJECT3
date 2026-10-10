@@ -137,10 +137,10 @@
                 "phone": {
                   "example": "any"
                 },
-                "favoriteGenre": {
+                "joinDate": {
                   "example": "any"
                 },
-                "joinDate": {
+                "favoriteGenre": {
                   "example": "any"
                 }
               }
