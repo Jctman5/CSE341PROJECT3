@@ -1,73 +1,71 @@
 const mongodb = require("../data/database");
 const ObjectId = require("mongodb").ObjectId;
-//all member controller routes created by Jackson Taylor
+
 const getAll = async (req, res) => {
-    const result = await mongodb.getDatabase().db().collection("members").find();
-    result.toArray().then((members) => {
-        res.setHeader("Content-Type", "application/json");
-        res.status(200).json(members);
-    });
+    try {
+        const result = await mongodb.getDatabase().db().collection("members").find();
+        const items = await result.toArray();
+        res.status(200).json(items);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
 const getSingle = async (req, res) => {
-    const memberId = new ObjectId(req.params.id);
-    const result = await mongodb.getDatabase().db().collection("members").find({ _id: memberId });
-    result.toArray().then((members) => {
-        res.setHeader("Content-Type", "application/json");
-        res.status(200).json(members[0]);
-    });
-};
-const createMember = async (req, res) => {
-    const member = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        membershipid: req.body.membershipid,
-        phone: req.body.phone,
-        favoriteGenre: req.body.favoriteGenre,
-        joinDate: req.body.joinDate,
-    };
-    const response = await mongodb.getDatabase().db().collection("members").insertOne(member);
-    if (response.acknowledged){
-        res.status(201).json({ id: response.insertedId });
-    } 
-    else{
-        res.status(500).json(response.error || "Some error occured creating the member.");
+    try {
+        const id = new ObjectId(req.params.id);
+        const result = await mongodb.getDatabase().db().collection("members").find({ _id: id });
+        const items = await result.toArray();
+        if (items.length === 0) {
+            return res.status(404).json({ error: "Member not found" });
+        }
+        res.status(200).json(items[0]);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 };
-const updateMember = async (req, res) => {
-    const memberId = new ObjectId(req.params.id);
-    const member = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        membershipid: req.body.membershipid,
-        phone: req.body.phone,
-        favoriteGenre: req.body.favoriteGenre,
-        joinDate: req.body.joinDate,
-    };
-    const response = await mongodb.getDatabase().db().collection("members").replaceOne({_id: memberId}, member);
-    console.log("UPDATE RESULT:", response);
-    if (response.matchedCount === 0) {
-        return res.status(404).json({ error: "Member not found" });
-    }
-    res.status(204).send();
-};
-const deleteMember = async (req, res) => {
-    const memberId = new ObjectId(req.params.id);
-    const response = await mongodb.getDatabase().db().collection("members").deleteOne({_id: memberId});
-    if (response.deletedCount > 0){
-        res.status(204).send();
-    } 
-    else{
-        res.status(500).json(response.error || "Some error occured while deleting the member.");
-    }
-}
 
-module.exports = {
-    getAll,
-    getSingle,
-    createMember,
-    updateMember,
-    deleteMember
+const createMember = async (req, res) => {
+    try {
+        const { firstName, lastName, email, membershipId, phone, favoriteGenre, joinDate } = req.body;
+        if (!firstName || !lastName || !email) {
+            return res.status(400).json({ error: "First name, last name, and email are required." });
+        }
+        const response = await mongodb.getDatabase().db().collection("members").insertOne({ firstName, lastName, email, membershipId, phone, favoriteGenre, joinDate });
+        res.status(201).json({ id: response.insertedId });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
+
+const updateMember = async (req, res) => {
+    try {
+        const id = new ObjectId(req.params.id);
+        const { firstName, lastName, email, membershipId, phone, favoriteGenre, joinDate } = req.body;
+        if (!firstName || !lastName || !email) {
+            return res.status(400).json({ error: "First name, last name, and email are required." });
+        }
+        const response = await mongodb.getDatabase().db().collection("members").replaceOne({ _id: id }, { firstName, lastName, email, membershipId, phone, favoriteGenre, joinDate   });
+        if (response.matchedCount === 0) {
+            return res.status(404).json({ error: "Member not found" });
+        }
+        res.status(204).send();
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+const deleteMember = async (req, res) => {
+    try {
+        const id = new ObjectId(req.params.id);
+        const response = await mongodb.getDatabase().db().collection("members").deleteOne({ _id: id });
+        if (response.deletedCount === 0) {
+            return res.status(404).json({ error: "Member not found" });
+        }
+        res.status(204).send();
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+module.exports = { getAll, getSingle, createMember, updateMember, deleteMember };
